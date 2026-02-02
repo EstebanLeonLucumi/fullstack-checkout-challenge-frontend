@@ -404,7 +404,7 @@ export const ProductPage = () => {
             </Box>
           </Box>
           <Typography sx={{ mt: 4, pt: 4, borderTop: 1, borderColor: 'divider', textAlign: 'center', fontSize: 14, color: 'text.secondary' }}>
-            © 2024 {STORE_NAME}. Todos los derechos reservados.
+            © {new Date().getFullYear()} {STORE_NAME}. Todos los derechos reservados.
           </Typography>
         </Container>
       </Box>

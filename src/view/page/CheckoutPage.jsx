@@ -237,7 +237,7 @@ export const CheckoutPage = () => {
 
         <Box component="footer" sx={{ maxWidth: 1280, mx: 'auto', px: { xs: 2, sm: 3 }, py: 6, textAlign: 'center' }}>
           <Typography sx={{ fontSize: 14, color: 'text.secondary' }}>
-            © 2024 {STORE_NAME}. Todos los derechos reservados.
+            © {new Date().getFullYear()} {STORE_NAME}. Todos los derechos reservados.
           </Typography>
           <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center', gap: 3, flexWrap: 'wrap' }}>
             <Typography component="a" href="#" sx={{ fontSize: 14, color: 'text.secondary', '&:hover': { color: CHECKOUT_PRIMARY } }}>
@@ -434,7 +434,7 @@ export const CheckoutPage = () => {
             <Typography component="a" href="#" sx={{ fontSize: 14, color: 'text.secondary', '&:hover': { color: 'text.primary' } }}>Política de devoluciones</Typography>
             <Typography component="a" href="#" sx={{ fontSize: 14, color: 'text.secondary', '&:hover': { color: 'text.primary' } }}>Soporte</Typography>
           </Box>
-          <Typography sx={{ fontSize: 14, color: 'text.secondary' }}>© 2024 {STORE_NAME}. Todos los derechos reservados.</Typography>
+          <Typography sx={{ fontSize: 14, color: 'text.secondary' }}>© {new Date().getFullYear()} {STORE_NAME}. Todos los derechos reservados.</Typography>
         </Box>
       </Box>
     </Box>

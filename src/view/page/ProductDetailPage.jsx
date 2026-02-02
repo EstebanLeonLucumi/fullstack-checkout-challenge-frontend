@@ -457,7 +457,7 @@ export const ProductDetailPage = () => {
       <Box component="footer" sx={{ mt: 8, py: 6, borderTop: '1px solid', borderColor: 'divider' }}>
         <Container maxWidth="xl" sx={{ maxWidth: CONTENT_MAX_WIDTH }}>
           <Typography sx={{ textAlign: 'center', fontSize: 14, color: 'text.secondary' }}>
-            © 2024 {STORE_NAME}. Todos los derechos reservados.
+            © {new Date().getFullYear()} {STORE_NAME}. Todos los derechos reservados.
           </Typography>
         </Container>
       </Box>
