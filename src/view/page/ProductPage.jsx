@@ -28,7 +28,10 @@ import BoltIcon from '@mui/icons-material/Bolt';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import { useProductViewModel } from '../../viewModel/useProductViewModel';
 import { useCheckoutViewModel } from '../../viewModel/useCheckoutViewModel';
-import { incrementCartItem, decrementCartItem } from '../../models/productSlice';
+import {
+  incrementCartItem,
+  decrementCartItem,
+} from '../../models/productSlice';
 import { CartModal } from '../components/CartModal';
 import { PaymentModal } from '../components/PaymentModal';
 import { SummaryBackdrop } from '../components/SummaryBackdrop';
@@ -40,7 +43,13 @@ export const ProductPage = () => {
   const isMd = useMediaQuery(theme.breakpoints.up('md'));
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { products, searchTerm, setSearchTerm, cartTotalItems, handleAddToCart } = useProductViewModel();
+  const {
+    products,
+    searchTerm,
+    setSearchTerm,
+    cartTotalItems,
+    handleAddToCart,
+  } = useProductViewModel();
   const {
     cart,
     subtotal,
@@ -49,6 +58,8 @@ export const ProductPage = () => {
     cartTotal,
     loading,
     success,
+    paymentStatus,
+    paymentErrorMessage,
     lastTransactionId,
     lastDeliveryId,
     lastTransactionTotal,
@@ -86,7 +97,9 @@ export const ProductPage = () => {
     if (!formData) return;
     try {
       await submitCheckout(formData.customerData, formData.card);
-    } catch (_) {}
+    } catch (err) {
+      console.error('Error al procesar el pago:', err);
+    }
   };
 
   const handleBackToProducts = () => {
@@ -110,10 +123,20 @@ export const ProductPage = () => {
         }}
       >
         <Container maxWidth="xl">
-          <Toolbar disableGutters sx={{ minHeight: 64, justifyContent: 'space-between' }}>
+          <Toolbar
+            disableGutters
+            sx={{ minHeight: 64, justifyContent: 'space-between' }}
+          >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <BoltIcon sx={{ color: 'primary.main', fontSize: 32 }} />
-              <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: '-0.5px', textTransform: 'uppercase' }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  letterSpacing: '-0.5px',
+                  textTransform: 'uppercase',
+                }}
+              >
                 {STORE_NAME}
               </Typography>
             </Box>
@@ -131,7 +154,9 @@ export const ProductPage = () => {
                     borderColor: 'divider',
                   }}
                 >
-                  <SearchIcon sx={{ color: 'text.secondary', mr: 1, fontSize: 20 }} />
+                  <SearchIcon
+                    sx={{ color: 'text.secondary', mr: 1, fontSize: 20 }}
+                  />
                   <InputBase
                     placeholder="Buscar productos..."
                     value={searchTerm}
@@ -142,8 +167,19 @@ export const ProductPage = () => {
                 </Box>
               </Box>
             )}
-            <IconButton onClick={() => setCartModalOpen(true)} sx={{ color: 'text.secondary', '&:hover': { bgcolor: 'action.hover' } }} aria-label="Ver carrito">
-              <Badge badgeContent={cartTotalItems} color="primary" sx={{ '& .MuiBadge-badge': { fontWeight: 700, fontSize: 10 } }}>
+            <IconButton
+              onClick={() => setCartModalOpen(true)}
+              sx={{
+                color: 'text.secondary',
+                '&:hover': { bgcolor: 'action.hover' },
+              }}
+              aria-label="Ver carrito"
+            >
+              <Badge
+                badgeContent={cartTotalItems}
+                color="primary"
+                sx={{ '& .MuiBadge-badge': { fontWeight: 700, fontSize: 10 } }}
+              >
                 <ShoppingCartIcon sx={{ fontSize: 28 }} />
               </Badge>
             </IconButton>
@@ -182,6 +218,8 @@ export const ProductPage = () => {
         onBack={handleBackdropBack}
         loading={loading}
         success={success}
+        paymentStatus={paymentStatus}
+        paymentErrorMessage={paymentErrorMessage}
         lastTransactionId={lastTransactionId}
         lastDeliveryId={lastDeliveryId}
         lastTransactionTotal={lastTransactionTotal}
@@ -190,11 +228,20 @@ export const ProductPage = () => {
 
       <Box component="header" sx={{ py: 6, textAlign: 'center' }}>
         <Container maxWidth="xl" sx={{ maxWidth: CONTENT_MAX_WIDTH }}>
-          <Typography variant="h3" component="h1" sx={{ fontWeight: 800, mb: 1, letterSpacing: '-0.5px' }}>
+          <Typography
+            variant="h3"
+            component="h1"
+            sx={{ fontWeight: 800, mb: 1, letterSpacing: '-0.5px' }}
+          >
             Productos Destacados
           </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 672, mx: 'auto', fontSize: '1.125rem' }}>
-            Explora nuestra colección de calzado de élite diseñada para llevar tu rendimiento al siguiente nivel.
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            sx={{ maxWidth: 672, mx: 'auto', fontSize: '1.125rem' }}
+          >
+            Explora nuestra colección de calzado de élite diseñada para llevar
+            tu rendimiento al siguiente nivel.
           </Typography>
         </Container>
       </Box>
@@ -210,7 +257,8 @@ export const ProductPage = () => {
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))',
+            gridTemplateColumns:
+              'repeat(auto-fill, minmax(min(100%, 320px), 1fr))',
             gap: 4,
           }}
         >
@@ -237,13 +285,25 @@ export const ProductPage = () => {
                 },
               }}
             >
-              <Box sx={{ position: 'relative', aspectRatio: '1/1', bgcolor: 'action.hover', overflow: 'hidden' }}>
+              <Box
+                sx={{
+                  position: 'relative',
+                  aspectRatio: '1/1',
+                  bgcolor: 'action.hover',
+                  overflow: 'hidden',
+                }}
+              >
                 <CardMedia
                   className="card-media"
                   component="img"
                   image={product.image}
                   alt={product.name}
-                  sx={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }}
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    transition: 'transform 0.5s ease',
+                  }}
                 />
                 <Chip
                   label={product.category ?? 'Producto'}
@@ -326,20 +386,43 @@ export const ProductPage = () => {
               <CardContent sx={{ flexGrow: 1, p: 3 }}>
                 <Typography
                   variant="h6"
-                  sx={{ fontWeight: 700, mb: 1.5, lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                  sx={{
+                    fontWeight: 700,
+                    mb: 1.5,
+                    lineHeight: 1.3,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
                   component="h2"
                 >
                   {product.name}
                 </Typography>
                 <Box sx={{ mb: 2 }}>
-                  <Typography variant="h5" sx={{ fontWeight: 800, color: 'primary.main' }}>
+                  <Typography
+                    variant="h5"
+                    sx={{ fontWeight: 800, color: 'primary.main' }}
+                  >
                     ${getPriceAmount(product.price).toLocaleString('es-CO')}
                   </Typography>
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'text.secondary', fontSize: 14, mb: 3 }}>
-                  <Inventory2Icon sx={{ fontSize: 18, color: 'success.main' }} />
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    color: 'text.secondary',
+                    fontSize: 14,
+                    mb: 3,
+                  }}
+                >
+                  <Inventory2Icon
+                    sx={{ fontSize: 18, color: 'success.main' }}
+                  />
                   <Typography variant="body2">
-                    {product.stock > 0 ? `${product.stock} disponibles` : 'Sin stock'}
+                    {product.stock > 0
+                      ? `${product.stock} disponibles`
+                      : 'Sin stock'}
                   </Typography>
                 </Box>
               </CardContent>
@@ -359,10 +442,12 @@ export const ProductPage = () => {
                     px: 2,
                     borderRadius: '12px',
                     fontWeight: 600,
-                    boxShadow: '0 10px 15px -3px rgba(26, 35, 126, 0.2), 0 4px 6px -2px rgba(26, 35, 126, 0.1)',
+                    boxShadow:
+                      '0 10px 15px -3px rgba(26, 35, 126, 0.2), 0 4px 6px -2px rgba(26, 35, 126, 0.1)',
                     '&:hover': {
                       bgcolor: 'primary.dark',
-                      boxShadow: '0 10px 15px -3px rgba(26, 35, 126, 0.3), 0 4px 6px -2px rgba(26, 35, 126, 0.2)',
+                      boxShadow:
+                        '0 10px 15px -3px rgba(26, 35, 126, 0.3), 0 4px 6px -2px rgba(26, 35, 126, 0.2)',
                     },
                   }}
                 >
@@ -384,27 +469,80 @@ export const ProductPage = () => {
         }}
       >
         <Container maxWidth="xl" sx={{ maxWidth: CONTENT_MAX_WIDTH }}>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', alignItems: 'center', gap: 4 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', md: 'row' },
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: 4,
+            }}
+          >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <BoltIcon sx={{ color: 'primary.main', fontSize: 32 }} />
-              <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: '-0.5px', textTransform: 'uppercase' }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  letterSpacing: '-0.5px',
+                  textTransform: 'uppercase',
+                }}
+              >
                 {STORE_NAME}
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', gap: 4 }}>
-              <Typography component="a" href="#" sx={{ color: 'text.secondary', fontWeight: 500, fontSize: 14, '&:hover': { color: 'primary.main' } }}>
+              <Typography
+                component="a"
+                href="#"
+                sx={{
+                  color: 'text.secondary',
+                  fontWeight: 500,
+                  fontSize: 14,
+                  '&:hover': { color: 'primary.main' },
+                }}
+              >
                 Términos y Condiciones
               </Typography>
-              <Typography component="a" href="#" sx={{ color: 'text.secondary', fontWeight: 500, fontSize: 14, '&:hover': { color: 'primary.main' } }}>
+              <Typography
+                component="a"
+                href="#"
+                sx={{
+                  color: 'text.secondary',
+                  fontWeight: 500,
+                  fontSize: 14,
+                  '&:hover': { color: 'primary.main' },
+                }}
+              >
                 Política de Privacidad
               </Typography>
-              <Typography component="a" href="#" sx={{ color: 'text.secondary', fontWeight: 500, fontSize: 14, '&:hover': { color: 'primary.main' } }}>
+              <Typography
+                component="a"
+                href="#"
+                sx={{
+                  color: 'text.secondary',
+                  fontWeight: 500,
+                  fontSize: 14,
+                  '&:hover': { color: 'primary.main' },
+                }}
+              >
                 Contacto
               </Typography>
             </Box>
           </Box>
-          <Typography sx={{ mt: 4, pt: 4, borderTop: 1, borderColor: 'divider', textAlign: 'center', fontSize: 14, color: 'text.secondary' }}>
-            © {new Date().getFullYear()} {STORE_NAME}. Todos los derechos reservados.
+          <Typography
+            sx={{
+              mt: 4,
+              pt: 4,
+              borderTop: 1,
+              borderColor: 'divider',
+              textAlign: 'center',
+              fontSize: 14,
+              color: 'text.secondary',
+            }}
+          >
+            © {new Date().getFullYear()} {STORE_NAME}. Todos los derechos
+            reservados.
           </Typography>
         </Container>
       </Box>

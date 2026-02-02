@@ -13,12 +13,17 @@ export const useCheckoutViewModel = () => {
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState(null); // 'success' | 'declined' | 'error' | null
+  const [paymentErrorMessage, setPaymentErrorMessage] = useState(null);
   const [lastTransactionTotal, setLastTransactionTotal] = useState(null);
   const [lastTransactionId, setLastTransactionId] = useState(null);
   const [lastDeliveryId, setLastDeliveryId] = useState(null);
 
   const subtotal =
-    cart.reduce((acc, item) => acc + getPriceAmount(item.price) * item.quantity, 0) || 0;
+    cart.reduce(
+      (acc, item) => acc + getPriceAmount(item.price) * item.quantity,
+      0
+    ) || 0;
   const cartTotal = subtotal + BASE_FEE + DELIVERY_FEE;
 
   const submitCheckout = async (customerData, cardData) => {
@@ -32,7 +37,9 @@ export const useCheckoutViewModel = () => {
       let customerId = null;
 
       try {
-        const existingRes = await customerService.getCustomerByEmail(customerData.email);
+        const existingRes = await customerService.getCustomerByEmail(
+          customerData.email
+        );
         const existing = existingRes.data?.data ?? existingRes.data;
         customerId = existing?.id ?? existing?.customerId;
       } catch (err) {
@@ -69,7 +76,8 @@ export const useCheckoutViewModel = () => {
         },
       };
 
-      const transactionRes = await transactionService.createTransaction(payload);
+      const transactionRes =
+        await transactionService.createTransaction(payload);
       const data = transactionRes.data?.data ?? transactionRes.data;
       const status = data?.status;
       const transactionId = data?.id ?? data?.transactionId ?? null;
@@ -81,12 +89,18 @@ export const useCheckoutViewModel = () => {
         dispatch(clearCart());
         dispatch(fetchProductsAsync());
         setSuccess(true);
+        setPaymentStatus('success');
+        setPaymentErrorMessage(null);
         toast.success('¡Pago realizado correctamente!');
       } else {
         const errorMsg =
           data?.message ??
           data?.error ??
           'La transacción no fue aprobada. Intenta de nuevo.';
+        setPaymentStatus(status === 'DECLINED' ? 'declined' : 'error');
+        setPaymentErrorMessage(errorMsg);
+        setSuccess(false);
+        if (transactionId) setLastTransactionId(transactionId);
         toast.error(errorMsg);
       }
     } catch (error) {
@@ -94,6 +108,9 @@ export const useCheckoutViewModel = () => {
         error.response?.data?.message ??
         error.response?.data?.error ??
         error.message;
+      setPaymentStatus('error');
+      setPaymentErrorMessage(msg || 'Error al procesar el pago');
+      setSuccess(false);
       toast.error(msg || 'Error al procesar el pago');
       throw error;
     } finally {
@@ -103,6 +120,8 @@ export const useCheckoutViewModel = () => {
 
   const resetCheckoutSuccess = () => {
     setSuccess(false);
+    setPaymentStatus(null);
+    setPaymentErrorMessage(null);
     setLastTransactionId(null);
     setLastDeliveryId(null);
     setLastTransactionTotal(null);
@@ -116,6 +135,8 @@ export const useCheckoutViewModel = () => {
     cartTotal,
     loading,
     success,
+    paymentStatus,
+    paymentErrorMessage,
     lastTransactionTotal,
     lastTransactionId,
     lastDeliveryId,

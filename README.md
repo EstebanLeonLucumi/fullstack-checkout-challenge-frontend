@@ -2,6 +2,8 @@
 
 Frontend de e-commerce en React + Vite para catálogo de productos, carrito y checkout con pago con tarjeta.
 
+**App desplegada:** [Abrir en producción](https://fullstack-checkout-challenge-fronte.vercel.app/)
+
 ## Características
 
 - **Listado de productos** (`/products`): grid responsive con tarjetas, búsqueda en tiempo real por nombre, categoría o descripción, chips de categoría/stock (Agotado, Últimas unidades, Novedad).
@@ -26,7 +28,7 @@ Frontend de e-commerce en React + Vite para catálogo de productos, carrito y ch
 ## Requisitos
 
 - Node.js 18+
-- Backend de API (productos, clientes, transacciones). **Backend desplegado:** `https://fullstack-checkout-challenge-backend-production.up.railway.app`. Para desarrollo local se usa `http://localhost:3000` por defecto.
+- Backend de API (productos, clientes, transacciones). **Backend desplegado:** [Abrir API en producción](https://fullstack-checkout-challenge-backend-production.up.railway.app). Para desarrollo local se usa `http://localhost:3000` por defecto.
 
 ## Instalación y ejecución
 

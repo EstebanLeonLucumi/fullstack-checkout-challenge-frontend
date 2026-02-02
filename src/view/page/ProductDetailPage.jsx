@@ -25,7 +25,12 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
-import { fetchProductByIdAsync, addToCart, incrementCartItem, decrementCartItem } from '../../models/productSlice';
+import {
+  fetchProductByIdAsync,
+  addToCart,
+  incrementCartItem,
+  decrementCartItem,
+} from '../../models/productSlice';
 import { toast } from 'sonner';
 import { useCheckoutViewModel } from '../../viewModel/useCheckoutViewModel';
 import { CartModal } from '../components/CartModal';
@@ -38,8 +43,14 @@ export const ProductDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { currentProduct, statusDetail, list: productList } = useSelector((state) => state.products);
-  const cartTotalItems = useSelector((state) => state.products.cart.reduce((acc, item) => acc + item.quantity, 0));
+  const {
+    currentProduct,
+    statusDetail,
+    list: productList,
+  } = useSelector((state) => state.products);
+  const cartTotalItems = useSelector((state) =>
+    state.products.cart.reduce((acc, item) => acc + item.quantity, 0)
+  );
   const listForCart = currentProduct
     ? [currentProduct, ...productList.filter((p) => p.id !== currentProduct.id)]
     : productList;
@@ -51,6 +62,8 @@ export const ProductDetailPage = () => {
     cartTotal,
     loading,
     success,
+    paymentStatus,
+    paymentErrorMessage,
     lastTransactionId,
     lastDeliveryId,
     lastTransactionTotal,
@@ -106,7 +119,9 @@ export const ProductDetailPage = () => {
     if (!formData) return;
     try {
       await submitCheckout(formData.customerData, formData.card);
-    } catch (_) {}
+    } catch (err) {
+      console.error('Error al procesar el pago:', err);
+    }
   };
 
   const handleBackToProducts = () => {
@@ -118,7 +133,15 @@ export const ProductDetailPage = () => {
 
   if (statusDetail === 'loading') {
     return (
-      <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Box
+        sx={{
+          minHeight: '100vh',
+          bgcolor: 'background.default',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -127,14 +150,36 @@ export const ProductDetailPage = () => {
   if (statusDetail === 'failed' || !currentProduct) {
     return (
       <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-        <AppBar position="sticky" elevation={0} sx={{ bgcolor: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(12px)', borderBottom: 1, borderColor: 'divider', color: 'text.primary' }}>
+        <AppBar
+          position="sticky"
+          elevation={0}
+          sx={{
+            bgcolor: 'rgba(255,255,255,0.8)',
+            backdropFilter: 'blur(12px)',
+            borderBottom: 1,
+            borderColor: 'divider',
+            color: 'text.primary',
+          }}
+        >
           <Toolbar>
-            <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/products')} sx={{ py: 1.5, px: 2 }}>Volver</Button>
+            <Button
+              startIcon={<ArrowBackIcon />}
+              onClick={() => navigate('/products')}
+              sx={{ py: 1.5, px: 2 }}
+            >
+              Volver
+            </Button>
           </Toolbar>
         </AppBar>
         <Container sx={{ py: 4, textAlign: 'center' }}>
           <Typography color="text.secondary">Producto no encontrado</Typography>
-          <Button sx={{ mt: 2, py: 1.5, px: 2 }} variant="contained" onClick={() => navigate('/products')}>Ir a productos</Button>
+          <Button
+            sx={{ mt: 2, py: 1.5, px: 2 }}
+            variant="contained"
+            onClick={() => navigate('/products')}
+          >
+            Ir a productos
+          </Button>
         </Container>
       </Box>
     );
@@ -154,28 +199,64 @@ export const ProductDetailPage = () => {
         }}
       >
         <Container maxWidth="xl" sx={{ maxWidth: CONTENT_MAX_WIDTH }}>
-          <Toolbar disableGutters sx={{ minHeight: 64, justifyContent: 'space-between' }}>
+          <Toolbar
+            disableGutters
+            sx={{ minHeight: 64, justifyContent: 'space-between' }}
+          >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Button
                 startIcon={<ArrowBackIcon sx={{ fontSize: 20 }} />}
                 onClick={() => navigate('/products')}
-                sx={{ py: 1.5, px: 2, color: 'text.secondary', fontWeight: 500, textTransform: 'none', fontSize: 14 }}
+                sx={{
+                  py: 1.5,
+                  px: 2,
+                  color: 'text.secondary',
+                  fontWeight: 500,
+                  textTransform: 'none',
+                  fontSize: 14,
+                }}
               >
                 Volver
               </Button>
-              <Divider orientation="vertical" flexItem sx={{ height: 24, alignSelf: 'center' }} />
+              <Divider
+                orientation="vertical"
+                flexItem
+                sx={{ height: 24, alignSelf: 'center' }}
+              />
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <BoltIcon sx={{ color: 'primary.main', fontSize: 28 }} />
-                <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: '-0.5px', fontSize: '1.125rem' }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 700,
+                    letterSpacing: '-0.5px',
+                    fontSize: '1.125rem',
+                  }}
+                >
                   {STORE_NAME}
                 </Typography>
               </Box>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <IconButton sx={{ color: 'text.secondary', '&:hover': { bgcolor: 'action.hover' }, borderRadius: '50%' }}>
+              <IconButton
+                sx={{
+                  color: 'text.secondary',
+                  '&:hover': { bgcolor: 'action.hover' },
+                  borderRadius: '50%',
+                }}
+              >
                 <SearchIcon />
               </IconButton>
-              <IconButton onClick={() => setCartModalOpen(true)} sx={{ color: 'text.secondary', position: 'relative', '&:hover': { bgcolor: 'action.hover' }, borderRadius: '50%' }} aria-label="Ver carrito">
+              <IconButton
+                onClick={() => setCartModalOpen(true)}
+                sx={{
+                  color: 'text.secondary',
+                  position: 'relative',
+                  '&:hover': { bgcolor: 'action.hover' },
+                  borderRadius: '50%',
+                }}
+                aria-label="Ver carrito"
+              >
                 <ShoppingCartIcon sx={{ fontSize: 28 }} />
                 {cartTotalItems > 0 && (
                   <Box
@@ -237,18 +318,24 @@ export const ProductDetailPage = () => {
         onBack={handleBackdropBack}
         loading={loading}
         success={success}
+        paymentStatus={paymentStatus}
+        paymentErrorMessage={paymentErrorMessage}
         lastTransactionId={lastTransactionId}
         lastDeliveryId={lastDeliveryId}
         lastTransactionTotal={lastTransactionTotal}
         onBackToProducts={handleBackToProducts}
       />
 
-      <Container maxWidth="xl" sx={{ py: 6, maxWidth: CONTENT_MAX_WIDTH, px: 3 }}>
+      <Container
+        maxWidth="xl"
+        sx={{ py: 6, maxWidth: CONTENT_MAX_WIDTH, px: 3 }}
+      >
         <Box
           sx={{
             bgcolor: 'background.paper',
             borderRadius: '16px',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0,0,0,0.03)',
+            boxShadow:
+              '0 25px 50px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0,0,0,0.03)',
             overflow: 'hidden',
             border: '1px solid',
             borderColor: 'divider',
@@ -257,7 +344,8 @@ export const ProductDetailPage = () => {
           <Box
             sx={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))',
+              gridTemplateColumns:
+                'repeat(auto-fit, minmax(min(100%, 380px), 1fr))',
               minHeight: 0,
             }}
           >
@@ -355,12 +443,33 @@ export const ProductDetailPage = () => {
                 {currentProduct.name}
               </Typography>
 
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
-                <Typography sx={{ fontSize: '1.875rem', fontWeight: 700, color: 'primary.main' }}>
-                  ${getPriceAmount(currentProduct.price).toLocaleString('es-CO')}
+              <Box
+                sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}
+              >
+                <Typography
+                  sx={{
+                    fontSize: '1.875rem',
+                    fontWeight: 700,
+                    color: 'primary.main',
+                  }}
+                >
+                  $
+                  {getPriceAmount(currentProduct.price).toLocaleString('es-CO')}
                 </Typography>
-                <Divider orientation="vertical" flexItem sx={{ height: 24, alignSelf: 'center' }} />
-                <Box sx={{ display: 'flex', alignItems: 'center', color: 'success.main', fontSize: 14, fontWeight: 500 }}>
+                <Divider
+                  orientation="vertical"
+                  flexItem
+                  sx={{ height: 24, alignSelf: 'center' }}
+                />
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: 'success.main',
+                    fontSize: 14,
+                    fontWeight: 500,
+                  }}
+                >
                   <CheckCircleIcon sx={{ mr: 0.5, fontSize: 20 }} />
                   {currentProduct.stock > 0
                     ? `En stock (${currentProduct.stock} disponibles)`
@@ -389,15 +498,19 @@ export const ProductDetailPage = () => {
                     borderRadius: '12px',
                     fontWeight: 700,
                     fontSize: '1.125rem',
-                    boxShadow: '0 10px 15px -3px rgba(26, 35, 126, 0.2), 0 4px 6px -2px rgba(26, 35, 126, 0.1)',
+                    boxShadow:
+                      '0 10px 15px -3px rgba(26, 35, 126, 0.2), 0 4px 6px -2px rgba(26, 35, 126, 0.1)',
                     '&:hover': {
                       bgcolor: 'primary.dark',
-                      boxShadow: '0 10px 15px -3px rgba(26, 35, 126, 0.3), 0 4px 6px -2px rgba(26, 35, 126, 0.2)',
+                      boxShadow:
+                        '0 10px 15px -3px rgba(26, 35, 126, 0.3), 0 4px 6px -2px rgba(26, 35, 126, 0.2)',
                     },
                     '&:active': { transform: 'scale(0.98)' },
                   }}
                 >
-                  {currentProduct.stock === 0 ? 'Agotado' : 'Agregar al carrito'}
+                  {currentProduct.stock === 0
+                    ? 'Agotado'
+                    : 'Agregar al carrito'}
                 </Button>
               </Box>
 
@@ -405,7 +518,9 @@ export const ProductDetailPage = () => {
 
               <Grid container spacing={3}>
                 <Grid item xs={12} sm={6}>
-                  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                  <Box
+                    sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}
+                  >
                     <Box
                       sx={{
                         p: 1,
@@ -414,20 +529,37 @@ export const ProductDetailPage = () => {
                         flexShrink: 0,
                       }}
                     >
-                      <LocalShippingIcon sx={{ color: 'primary.main', fontSize: 24 }} />
+                      <LocalShippingIcon
+                        sx={{ color: 'primary.main', fontSize: 24 }}
+                      />
                     </Box>
                     <Box>
-                      <Typography variant="caption" fontWeight={700} sx={{ textTransform: 'uppercase', letterSpacing: 1, display: 'block', color: 'text.primary' }}>
+                      <Typography
+                        variant="caption"
+                        fontWeight={700}
+                        sx={{
+                          textTransform: 'uppercase',
+                          letterSpacing: 1,
+                          display: 'block',
+                          color: 'text.primary',
+                        }}
+                      >
                         Envío Gratis
                       </Typography>
-                      <Typography variant="caption" sx={{ fontSize: 11 }} color="text.secondary">
+                      <Typography
+                        variant="caption"
+                        sx={{ fontSize: 11 }}
+                        color="text.secondary"
+                      >
                         En pedidos superiores a $500.000
                       </Typography>
                     </Box>
                   </Box>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                  <Box
+                    sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}
+                  >
                     <Box
                       sx={{
                         p: 1,
@@ -436,13 +568,28 @@ export const ProductDetailPage = () => {
                         flexShrink: 0,
                       }}
                     >
-                      <VerifiedUserIcon sx={{ color: 'success.main', fontSize: 24 }} />
+                      <VerifiedUserIcon
+                        sx={{ color: 'success.main', fontSize: 24 }}
+                      />
                     </Box>
                     <Box>
-                      <Typography variant="caption" fontWeight={700} sx={{ textTransform: 'uppercase', letterSpacing: 1, display: 'block', color: 'text.primary' }}>
+                      <Typography
+                        variant="caption"
+                        fontWeight={700}
+                        sx={{
+                          textTransform: 'uppercase',
+                          letterSpacing: 1,
+                          display: 'block',
+                          color: 'text.primary',
+                        }}
+                      >
                         Pago Seguro
                       </Typography>
-                      <Typography variant="caption" sx={{ fontSize: 11 }} color="text.secondary">
+                      <Typography
+                        variant="caption"
+                        sx={{ fontSize: 11 }}
+                        color="text.secondary"
+                      >
                         100% transacciones seguras
                       </Typography>
                     </Box>
@@ -454,10 +601,16 @@ export const ProductDetailPage = () => {
         </Box>
       </Container>
 
-      <Box component="footer" sx={{ mt: 8, py: 6, borderTop: '1px solid', borderColor: 'divider' }}>
+      <Box
+        component="footer"
+        sx={{ mt: 8, py: 6, borderTop: '1px solid', borderColor: 'divider' }}
+      >
         <Container maxWidth="xl" sx={{ maxWidth: CONTENT_MAX_WIDTH }}>
-          <Typography sx={{ textAlign: 'center', fontSize: 14, color: 'text.secondary' }}>
-            © {new Date().getFullYear()} {STORE_NAME}. Todos los derechos reservados.
+          <Typography
+            sx={{ textAlign: 'center', fontSize: 14, color: 'text.secondary' }}
+          >
+            © {new Date().getFullYear()} {STORE_NAME}. Todos los derechos
+            reservados.
           </Typography>
         </Container>
       </Box>
