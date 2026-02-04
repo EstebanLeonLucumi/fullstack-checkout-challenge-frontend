@@ -16,8 +16,8 @@ export const useCheckoutViewModel = () => {
   const [paymentStatus, setPaymentStatus] = useState(null); // 'success' | 'declined' | 'error' | null
   const [paymentErrorMessage, setPaymentErrorMessage] = useState(null);
   const [lastTransactionTotal, setLastTransactionTotal] = useState(null);
-  const [lastTransactionId, setLastTransactionId] = useState(null);
-  const [lastDeliveryId, setLastDeliveryId] = useState(null);
+  const [lastTransactionStatus, setLastTransactionStatus] = useState(null);
+  const [lastOrderNumber, setLastOrderNumber] = useState(null);
 
   const subtotal =
     cart.reduce(
@@ -80,12 +80,13 @@ export const useCheckoutViewModel = () => {
         await transactionService.createTransaction(payload);
       const data = transactionRes.data?.data ?? transactionRes.data;
       const status = data?.status;
-      const transactionId = data?.id ?? data?.transactionId ?? null;
+      const orderNumber = data?.orderNumber ?? null;
+
+      setLastTransactionStatus(status ?? null);
+      setLastOrderNumber(orderNumber ?? null);
 
       if (status === 'APPROVED') {
         setLastTransactionTotal(cartTotal);
-        setLastTransactionId(transactionId);
-        setLastDeliveryId(data?.deliveryId ?? null);
         dispatch(clearCart());
         dispatch(fetchProductsAsync());
         setSuccess(true);
@@ -100,7 +101,6 @@ export const useCheckoutViewModel = () => {
         setPaymentStatus(status === 'DECLINED' ? 'declined' : 'error');
         setPaymentErrorMessage(errorMsg);
         setSuccess(false);
-        if (transactionId) setLastTransactionId(transactionId);
         toast.error(errorMsg);
       }
     } catch (error) {
@@ -122,8 +122,8 @@ export const useCheckoutViewModel = () => {
     setSuccess(false);
     setPaymentStatus(null);
     setPaymentErrorMessage(null);
-    setLastTransactionId(null);
-    setLastDeliveryId(null);
+    setLastTransactionStatus(null);
+    setLastOrderNumber(null);
     setLastTransactionTotal(null);
   };
 
@@ -138,8 +138,8 @@ export const useCheckoutViewModel = () => {
     paymentStatus,
     paymentErrorMessage,
     lastTransactionTotal,
-    lastTransactionId,
-    lastDeliveryId,
+    lastTransactionStatus,
+    lastOrderNumber,
     submitCheckout,
     resetCheckoutSuccess,
   };

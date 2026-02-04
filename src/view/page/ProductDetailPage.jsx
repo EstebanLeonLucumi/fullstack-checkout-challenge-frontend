@@ -64,8 +64,8 @@ export const ProductDetailPage = () => {
     success,
     paymentStatus,
     paymentErrorMessage,
-    lastTransactionId,
-    lastDeliveryId,
+    lastTransactionStatus,
+    lastOrderNumber,
     lastTransactionTotal,
     submitCheckout,
     resetCheckoutSuccess,
@@ -320,8 +320,8 @@ export const ProductDetailPage = () => {
         success={success}
         paymentStatus={paymentStatus}
         paymentErrorMessage={paymentErrorMessage}
-        lastTransactionId={lastTransactionId}
-        lastDeliveryId={lastDeliveryId}
+        lastTransactionStatus={lastTransactionStatus}
+        lastOrderNumber={lastOrderNumber}
         lastTransactionTotal={lastTransactionTotal}
         onBackToProducts={handleBackToProducts}
       />

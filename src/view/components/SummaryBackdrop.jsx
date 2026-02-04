@@ -31,13 +31,14 @@ export const SummaryBackdrop = ({
   success,
   paymentStatus,
   paymentErrorMessage,
-  lastTransactionId,
-  lastDeliveryId,
+  lastTransactionStatus,
+  lastOrderNumber,
   lastTransactionTotal,
   onBackToProducts,
 }) => {
-  const orderId = lastTransactionId != null ? String(lastTransactionId) : '—';
-  const deliveryId = lastDeliveryId != null ? String(lastDeliveryId) : '—';
+  const transactionStatus =
+    lastTransactionStatus != null ? String(lastTransactionStatus) : '—';
+  const orderNumber = lastOrderNumber != null ? String(lastOrderNumber) : '—';
   const totalPaid = (lastTransactionTotal ?? cartTotal).toLocaleString('es-CO');
   const isFailed = paymentStatus === 'declined' || paymentStatus === 'error';
 
@@ -105,18 +106,18 @@ export const SummaryBackdrop = ({
             >
               <Box>
                 <Typography variant="body2" color="text.secondary">
-                  ID del Pedido
+                  Estado de la transacción
                 </Typography>
                 <Typography variant="body2" fontWeight={700}>
-                  {orderId}
+                  {transactionStatus}
                 </Typography>
               </Box>
               <Box>
                 <Typography variant="body2" color="text.secondary">
-                  ID del Delivery
+                  Número de orden
                 </Typography>
                 <Typography variant="body2" fontWeight={700}>
-                  {deliveryId}
+                  {orderNumber}
                 </Typography>
               </Box>
               <Box>
@@ -194,10 +195,18 @@ export const SummaryBackdrop = ({
             >
               <Box>
                 <Typography variant="body2" color="text.secondary">
-                  ID del Pedido
+                  Estado de la transacción
                 </Typography>
                 <Typography variant="body2" fontWeight={700}>
-                  {orderId}
+                  {transactionStatus}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Número de orden
+                </Typography>
+                <Typography variant="body2" fontWeight={700}>
+                  {orderNumber}
                 </Typography>
               </Box>
               <Box>
